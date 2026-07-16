@@ -7,11 +7,13 @@
     const DATA_SOURCES = {
         vip: '/api/data?source=vip',
         thuong: '/api/data?source=thuong',
+        region: '/api/data?source=region',
     };
 
     // ========== STATE ==========
     let vipTree = null;
     let thuongTree = null;
+    let regionTree = null;
 
     // ========== HELPERS ==========
     function formatNumber(n) {
@@ -168,8 +170,13 @@
                 console.warn('Thường: giá trị Aging chưa nhận diện được (vẫn tính vào total):', thuongResult.unknownAgingValues);
             }
 
+            setStatus('Đang tổng hợp theo Vùng...');
+            const regionResult = await fetchTree(DATA_SOURCES.region);
+            regionTree = regionResult.tree;
+
             renderTree(document.getElementById('vip-tbody'), vipTree, 'vip');
             renderTree(document.getElementById('thuong-tbody'), thuongTree, 'thuong');
+            renderTree(document.getElementById('region-tbody'), regionTree, 'region');
             updateKPIs();
 
             document.getElementById('last-updated').textContent = new Date().toLocaleString('vi-VN');
@@ -193,12 +200,29 @@
         });
     }
 
+    function setupTabs() {
+        const group = document.getElementById('seller-tab-group');
+        if (!group) return;
+        group.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tab-btn');
+            if (!btn) return;
+            group.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+            const activeTab = btn.dataset.tab;
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.style.display = panel.dataset.panel === activeTab ? '' : 'none';
+            });
+        });
+    }
+
     // ========== INIT ==========
     function init() {
         attachDrillHandlers(document.getElementById('vip-tbody'));
         attachDrillHandlers(document.getElementById('thuong-tbody'));
+        attachDrillHandlers(document.getElementById('region-tbody'));
         setupSearch('vip-search', document.getElementById('vip-tbody'), () => vipTree, 'vip');
         setupSearch('thuong-search', document.getElementById('thuong-tbody'), () => thuongTree, 'thuong');
+        setupSearch('region-search', document.getElementById('region-tbody'), () => regionTree, 'region');
+        setupTabs();
 
         document.getElementById('refresh-btn').addEventListener('click', () => {
             document.getElementById('refresh-btn').classList.add('loading');
