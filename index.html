@@ -50,30 +50,33 @@
         <!-- KPI Overview -->
         <section class="section fade-in">
             <div class="section-header">
-                <h2 class="section-title"><span class="section-icon">📊</span> Tổng Quan Backlog</h2>
+                <h2 class="section-title"><span class="section-icon">📊</span> Backlog Overview</h2>
             </div>
             <div class="kpi-grid" id="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-info">
-                        <span class="kpi-label">Tổng volume tồn</span>
+                        <span class="kpi-label">Total Pending Volume</span>
                         <span class="kpi-value" id="kpi-total">—</span>
+                        <div class="kpi-breakdown" id="kpi-total-breakdown"></div>
                     </div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-info">
-                        <span class="kpi-label">Seller VIP — tồn</span>
+                        <span class="kpi-label">VIP Sellers — Pending</span>
                         <span class="kpi-value" id="kpi-vip-total">—</span>
+                        <div class="kpi-breakdown" id="kpi-vip-breakdown"></div>
                     </div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-info">
-                        <span class="kpi-label">Seller Thường — tồn</span>
+                        <span class="kpi-label">Regular Sellers — Pending</span>
                         <span class="kpi-value" id="kpi-thuong-total">—</span>
+                        <div class="kpi-breakdown" id="kpi-thuong-breakdown"></div>
                     </div>
                 </div>
                 <div class="kpi-card kpi-card-danger">
                     <div class="kpi-info">
-                        <span class="kpi-label">Aging ≥ 3 ngày (toàn mạng)</span>
+                        <span class="kpi-label">Aging ≥ 3 days (Total)</span>
                         <span class="kpi-value" id="kpi-aging3-total">—</span>
                     </div>
                 </div>
@@ -83,7 +86,7 @@
         <!-- VIP table -->
         <section class="section fade-in">
             <div class="section-header">
-                <h2 class="section-title"><span class="section-icon">⭐</span> Backlog Theo Seller VIP</h2>
+                <h2 class="section-title"><span class="section-icon">⭐</span> Backlog by VIP Seller</h2>
                 <input type="text" class="search-box" id="vip-search" placeholder="Tìm seller...">
             </div>
             <p class="hint-text">Bấm vào một seller để xem chi tiết theo đội lấy hàng (bưu cục).</p>
@@ -135,7 +138,6 @@
         <p>© 2026 Dashboard Backlog Lấy Hàng — Firstmile</p>
     </footer>
 
-    
-    <script src="app.js?v=1.0"></script>
+    <script src="app.js?v=2.0"></script>
 </body>
 </html>
