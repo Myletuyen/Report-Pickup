@@ -112,6 +112,13 @@ body::before {
 .kpi-value { font-size: 28px; font-weight: 800; }
 .kpi-card-danger .kpi-value { color: var(--red); }
 
+.kpi-breakdown { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
+.kpi-breakdown .bd-item { white-space: nowrap; }
+.kpi-breakdown .bd-item b { font-weight: 700; }
+.kpi-breakdown .bd-a1 b { color: var(--text-primary); }
+.kpi-breakdown .bd-a2 b { color: var(--amber); }
+.kpi-breakdown .bd-a3 b { color: var(--red); }
+
 .table-container {
     background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
     padding: 20px; box-shadow: var(--shadow);
