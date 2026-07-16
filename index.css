@@ -124,7 +124,7 @@ body::before {
 .kpi-breakdown { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
 .kpi-breakdown .bd-item { white-space: nowrap; }
 .kpi-breakdown .bd-item b { font-weight: 700; }
-.kpi-breakdown .bd-a1 b { color: var(--text-primary); }
+.kpi-breakdown .bd-a1 b { color: var(--green); }
 .kpi-breakdown .bd-a2 b { color: var(--amber); }
 .kpi-breakdown .bd-a3 b { color: var(--red); }
 
@@ -161,8 +161,9 @@ body::before {
 
 .child-hidden { display: none; }
 
+.aging1-badge { color: var(--green); font-weight: 700; }
+.aging2-badge { color: var(--amber); font-weight: 700; }
 .aging3-badge { color: var(--red); font-weight: 700; }
-.aging2-badge { color: var(--amber); }
 
 .dashboard-footer { text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; }
 
