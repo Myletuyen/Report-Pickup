@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Backlog Lấy Hàng — Firstmile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">Đang tải dữ liệu backlog...</p>
+            <p class="loading-sub" id="loading-status">Khởi tạo...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3h18v6H3z"/><path d="M3 9v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9"/><path d="M9 13h6"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="header-title">Backlog Lấy Hàng — Firstmile</h1>
+                <p class="header-subtitle">Đơn chưa được lấy trong ngày — Seller VIP &amp; Seller Thường</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Cập nhật lần cuối</span>
+                    <span class="meta-value" id="last-updated">—</span>
+                </div>
+                <button class="refresh-btn" id="refresh-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <!-- KPI Overview -->
+        <section class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title"><span class="section-icon">📊</span> Tổng Quan Backlog</h2>
+            </div>
+            <div class="kpi-grid" id="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Tổng volume tồn</span>
+                        <span class="kpi-value" id="kpi-total">—</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Seller VIP — tồn</span>
+                        <span class="kpi-value" id="kpi-vip-total">—</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Seller Thường — tồn</span>
+                        <span class="kpi-value" id="kpi-thuong-total">—</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-card-danger">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Aging ≥ 3 ngày (toàn mạng)</span>
+                        <span class="kpi-value" id="kpi-aging3-total">—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIP table -->
+        <section class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title"><span class="section-icon">⭐</span> Backlog Theo Seller VIP</h2>
+                <input type="text" class="search-box" id="vip-search" placeholder="Tìm seller...">
+            </div>
+            <p class="hint-text">Bấm vào một seller để xem chi tiết theo đội lấy hàng (bưu cục).</p>
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="data-table drill-table" id="vip-table">
+                        <thead>
+                            <tr>
+                                <th class="col-name">Seller / Đội lấy hàng</th>
+                                <th>Volume tồn total</th>
+                                <th>Aging &lt;= 1 ngày</th>
+                                <th>Aging 2 ngày</th>
+                                <th>Aging &gt;= 3 ngày</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vip-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Thuong table -->
+        <section class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title"><span class="section-icon">🗺️</span> Backlog Theo Vùng — Seller Thường</h2>
+                <input type="text" class="search-box" id="thuong-search" placeholder="Tìm vùng / tỉnh / bưu cục...">
+            </div>
+            <p class="hint-text">Bấm vào Vùng để xem Tỉnh, bấm vào Tỉnh để xem Bưu cục.</p>
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="data-table drill-table" id="thuong-table">
+                        <thead>
+                            <tr>
+                                <th class="col-name">Vùng / Tỉnh / Bưu cục</th>
+                                <th>Volume tồn total</th>
+                                <th>Aging &lt;= 1 ngày</th>
+                                <th>Aging 2 ngày</th>
+                                <th>Aging &gt;= 3 ngày</th>
+                            </tr>
+                        </thead>
+                        <tbody id="thuong-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="dashboard-footer">
+        <p>© 2026 Dashboard Backlog Lấy Hàng — Firstmile</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="app.js?v=1.0"></script>
+</body>
+</html>
