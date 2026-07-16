@@ -57,13 +57,14 @@
                 }
                 if (parentId && autoExpand) tr.classList.remove('child-hidden');
 
-                const a3Class = child.a3 > 0 ? ' class="aging3-badge"' : '';
+                const a1Class = child.a1 > 0 ? ' class="aging1-badge"' : '';
                 const a2Class = child.a2 > 0 ? ' class="aging2-badge"' : '';
+                const a3Class = child.a3 > 0 ? ' class="aging3-badge"' : '';
 
                 tr.innerHTML =
                     '<td class="col-name"><span class="drill-toggle">▶</span><span>' + escapeHTML(child.name) + '</span></td>' +
                     '<td>' + formatNumber(child.total) + '</td>' +
-                    '<td>' + formatNumber(child.a1) + '</td>' +
+                    '<td' + a1Class + '>' + formatNumber(child.a1) + '</td>' +
                     '<td' + a2Class + '>' + formatNumber(child.a2) + '</td>' +
                     '<td' + a3Class + '>' + formatNumber(child.a3) + '</td>';
 
