@@ -4,5 +4,8 @@
   "description": "Dashboard theo dõi backlog lấy hàng (Firstmile) - Seller VIP & Seller Thường",
   "scripts": {
     "build": "echo 'No build step'"
+  },
+  "dependencies": {
+    "papaparse": "^5.4.1"
   }
 }
