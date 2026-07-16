@@ -102,6 +102,15 @@ body::before {
 }
 .search-box:focus { outline: none; border-color: var(--blue); }
 
+.tab-group { display: flex; gap: 8px; }
+.tab-btn {
+    background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary);
+    padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .15s ease;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.4); color: var(--blue-light); }
+
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .kpi-card {
     background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
