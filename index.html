@@ -83,52 +83,84 @@
             </div>
         </section>
 
-        <!-- VIP table -->
+        <!-- Region overview: Region -> Seller VIP / Seller Thường -->
         <section class="section fade-in">
             <div class="section-header">
-                <h2 class="section-title"><span class="section-icon">⭐</span> Backlog by VIP Seller</h2>
-                <input type="text" class="search-box" id="vip-search" placeholder="Tìm seller...">
+                <h2 class="section-title"><span class="section-icon">🗺️</span> Backlog by Region</h2>
+                <input type="text" class="search-box" id="region-search" placeholder="Tìm vùng...">
             </div>
-            <p class="hint-text">Bấm vào một seller để xem chi tiết theo đội lấy hàng (bưu cục).</p>
+            <p class="hint-text">Bấm vào một Vùng để tách theo Seller VIP / Seller Thường.</p>
             <div class="table-container">
                 <div class="table-responsive">
-                    <table class="data-table drill-table" id="vip-table">
+                    <table class="data-table drill-table" id="region-table">
                         <thead>
                             <tr>
-                                <th class="col-name">Seller / Đội lấy hàng</th>
+                                <th class="col-name">Vùng / Loại Seller</th>
                                 <th>Volume tồn total</th>
                                 <th>Aging &lt;= 1 ngày</th>
                                 <th>Aging 2 ngày</th>
                                 <th>Aging &gt;= 3 ngày</th>
                             </tr>
                         </thead>
-                        <tbody id="vip-tbody"></tbody>
+                        <tbody id="region-tbody"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- Thuong table -->
+        <!-- Seller detail: tabbed VIP / Thường -->
         <section class="section fade-in">
             <div class="section-header">
-                <h2 class="section-title"><span class="section-icon">🗺️</span> Backlog Theo Vùng — Seller Thường</h2>
-                <input type="text" class="search-box" id="thuong-search" placeholder="Tìm vùng / tỉnh / bưu cục...">
+                <h2 class="section-title"><span class="section-icon">📋</span> Seller Detail</h2>
+                <div class="tab-group" id="seller-tab-group">
+                    <button class="tab-btn active" data-tab="vip">Seller VIP</button>
+                    <button class="tab-btn" data-tab="thuong">Seller Thường</button>
+                </div>
             </div>
-            <p class="hint-text">Bấm vào Vùng để xem Tỉnh, bấm vào Tỉnh để xem Bưu cục.</p>
-            <div class="table-container">
-                <div class="table-responsive">
-                    <table class="data-table drill-table" id="thuong-table">
-                        <thead>
-                            <tr>
-                                <th class="col-name">Vùng / Tỉnh / Bưu cục</th>
-                                <th>Volume tồn total</th>
-                                <th>Aging &lt;= 1 ngày</th>
-                                <th>Aging 2 ngày</th>
-                                <th>Aging &gt;= 3 ngày</th>
-                            </tr>
-                        </thead>
-                        <tbody id="thuong-tbody"></tbody>
-                    </table>
+
+            <div class="tab-panel" data-panel="vip">
+                <div class="section-header">
+                    <input type="text" class="search-box" id="vip-search" placeholder="Tìm seller...">
+                </div>
+                <p class="hint-text">Bấm vào một seller để xem chi tiết theo đội lấy hàng (bưu cục).</p>
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="data-table drill-table" id="vip-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">Seller / Đội lấy hàng</th>
+                                    <th>Volume tồn total</th>
+                                    <th>Aging &lt;= 1 ngày</th>
+                                    <th>Aging 2 ngày</th>
+                                    <th>Aging &gt;= 3 ngày</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vip-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" data-panel="thuong" style="display: none;">
+                <div class="section-header">
+                    <input type="text" class="search-box" id="thuong-search" placeholder="Tìm vùng / tỉnh / bưu cục...">
+                </div>
+                <p class="hint-text">Bấm vào Vùng để xem Tỉnh, bấm vào Tỉnh để xem Bưu cục.</p>
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="data-table drill-table" id="thuong-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">Vùng / Tỉnh / Bưu cục</th>
+                                    <th>Volume tồn total</th>
+                                    <th>Aging &lt;= 1 ngày</th>
+                                    <th>Aging 2 ngày</th>
+                                    <th>Aging &gt;= 3 ngày</th>
+                                </tr>
+                            </thead>
+                            <tbody id="thuong-tbody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
