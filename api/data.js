@@ -51,7 +51,12 @@ module.exports = async (req, res) => {
             vipRows.forEach(row => { row.__sellerType = 'Seller VIP'; });
             thuongRows.forEach(row => { row.__sellerType = 'Seller Thường'; });
             const combined = vipRows.concat(thuongRows);
-            const result = buildTree(combined, [row => row[COLUMN_MAP.region], row => row.__sellerType], COLUMN_MAP.aging);
+            const result = buildTree(combined, [
+                row => row[COLUMN_MAP.region],
+                row => row.__sellerType,
+                // Under "Seller VIP": list of seller names. Under "Seller Thường": list of pickup offices (Bưu cục).
+                row => row.__sellerType === 'Seller VIP' ? row[COLUMN_MAP.seller] : row[COLUMN_MAP.pickWH],
+            ], COLUMN_MAP.aging);
             tree = result.tree;
             unknownAgingValues = result.unknownAgingValues;
             rowCount = combined.length;
