@@ -107,15 +107,33 @@
     }
 
     // ========== SUMMARY / KPI ==========
-    function updateKPIs() {
-        const vipTotal = vipTree ? vipTree.total : 0;
-        const thuongTotal = thuongTree ? thuongTree.total : 0;
-        const aging3Total = (vipTree ? vipTree.a3 : 0) + (thuongTree ? thuongTree.a3 : 0);
+    function renderBreakdown(elId, a1, a2, a3, total) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (!total) { el.innerHTML = ''; return; }
+        const pct = n => Math.round((n / total) * 100);
+        el.innerHTML =
+            '<span class="bd-item bd-a1">≤1d: <b>' + formatNumber(a1) + '</b> (' + pct(a1) + '%)</span>' +
+            '<span class="bd-item bd-a2">2d: <b>' + formatNumber(a2) + '</b> (' + pct(a2) + '%)</span>' +
+            '<span class="bd-item bd-a3">≥3d: <b>' + formatNumber(a3) + '</b> (' + pct(a3) + '%)</span>';
+    }
 
-        document.getElementById('kpi-total').textContent = formatNumber(vipTotal + thuongTotal);
-        document.getElementById('kpi-vip-total').textContent = formatNumber(vipTotal);
-        document.getElementById('kpi-thuong-total').textContent = formatNumber(thuongTotal);
-        document.getElementById('kpi-aging3-total').textContent = formatNumber(aging3Total);
+    function updateKPIs() {
+        const vip = vipTree || { total: 0, a1: 0, a2: 0, a3: 0 };
+        const thuong = thuongTree || { total: 0, a1: 0, a2: 0, a3: 0 };
+        const total = vip.total + thuong.total;
+        const a1 = vip.a1 + thuong.a1;
+        const a2 = vip.a2 + thuong.a2;
+        const a3 = vip.a3 + thuong.a3;
+
+        document.getElementById('kpi-total').textContent = formatNumber(total);
+        document.getElementById('kpi-vip-total').textContent = formatNumber(vip.total);
+        document.getElementById('kpi-thuong-total').textContent = formatNumber(thuong.total);
+        document.getElementById('kpi-aging3-total').textContent = formatNumber(a3);
+
+        renderBreakdown('kpi-total-breakdown', a1, a2, a3, total);
+        renderBreakdown('kpi-vip-breakdown', vip.a1, vip.a2, vip.a3, vip.total);
+        renderBreakdown('kpi-thuong-breakdown', thuong.a1, thuong.a2, thuong.a3, thuong.total);
     }
 
     // ========== DATA LOADING ==========
