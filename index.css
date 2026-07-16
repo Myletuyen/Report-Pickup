@@ -158,6 +158,8 @@ body::before {
 .level-1 { font-weight: 600; color: var(--text-primary); background: rgba(255,255,255,.02); }
 .level-2 td.col-name { padding-left: 58px; }
 .level-2 { color: var(--text-secondary); }
+.level-3 td.col-name { padding-left: 82px; }
+.level-3 { color: var(--text-secondary); font-size: 12px; }
 
 .child-hidden { display: none; }
 
