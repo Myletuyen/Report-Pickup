@@ -113,7 +113,7 @@ body::before {
 .tab-btn.active { background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.4); color: var(--blue-light); }
 
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-.kpi-card {
+.kpi-grid + .kpi-grid { margin-top: 16px; }
     background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
     padding: 20px; box-shadow: var(--shadow);
 }
