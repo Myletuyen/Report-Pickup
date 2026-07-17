@@ -112,8 +112,14 @@ body::before {
 .tab-btn:hover { color: var(--text-primary); }
 .tab-btn.active { background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.4); color: var(--blue-light); }
 
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-.kpi-grid + .kpi-grid { margin-top: 16px; }
+..kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.kpi-grid-fixed { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) {
+    .kpi-grid-fixed { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+    .kpi-grid-fixed { grid-template-columns: 1fr; }
+}
     background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
     padding: 20px; box-shadow: var(--shadow);
 }
