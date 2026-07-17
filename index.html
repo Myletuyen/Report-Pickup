@@ -50,7 +50,10 @@
         <!-- KPI Overview -->
         <section class="section fade-in">
             <div class="section-header">
-                <h2 class="section-title"><span class="section-icon">📊</span> Backlog Overview</h2>
+                <h2 class="section-title">
+                    <span class="section-icon">📊</span> Backlog Overview
+                    <span class="section-note">(Update 10h - 16h daily)</span>
+                </h2>
             </div>
             <div class="kpi-grid" id="kpi-grid">
                 <div class="kpi-card">
@@ -78,6 +81,26 @@
                     <div class="kpi-info">
                         <span class="kpi-label">Aging ≥ 3 days (Total)</span>
                         <span class="kpi-value" id="kpi-aging3-total">—</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Ready to Pick</span>
+                        <span class="kpi-value" id="kpi-status-ready">—</span>
+                        <div class="kpi-breakdown" id="kpi-status-ready-breakdown"></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Picking</span>
+                        <span class="kpi-value" id="kpi-status-picking">—</span>
+                        <div class="kpi-breakdown" id="kpi-status-picking-breakdown"></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Pickup Attempts</span>
+                        <div class="kpi-breakdown" id="kpi-attempts-breakdown"></div>
                     </div>
                 </div>
             </div>
