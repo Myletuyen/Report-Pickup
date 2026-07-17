@@ -17,6 +17,7 @@ const COLUMN_MAP = {
     region: 'FromRegionShortName',
     province: 'FromProvince',
     aging: 'Aging',
+    status: 'CurrentStatus',
 };
 
 const LEVELS = {
@@ -27,6 +28,36 @@ const LEVELS = {
 async function loadRows(sheetName) {
     const csvText = await fetchPublicCsv(SPREADSHEET_ID, sheetName);
     return Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
+}
+
+// The "number of pickup attempts" column name isn't confirmed exactly, so match
+// it case/whitespace-insensitively against a few likely spellings instead of a
+// single hardcoded header string.
+const NUMBER_PICK_CANDIDATES = ['numberpick', 'numberofpick', 'numofpick', 'pickattempt', 'pickattempts', 'solanlay'];
+
+function findNumberPickKey(sampleRow) {
+    if (!sampleRow) return null;
+    const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const keys = Object.keys(sampleRow);
+    return keys.find(k => NUMBER_PICK_CANDIDATES.includes(normalize(k))) || null;
+}
+
+function bucketAttempts(raw) {
+    const n = parseInt(String(raw == null ? '' : raw).trim(), 10);
+    if (isNaN(n)) return 'unknown';
+    if (n <= 0) return '0';
+    if (n === 1) return '1';
+    if (n === 2) return '2';
+    return '>=3';
+}
+
+function countBy(rows, keyFn) {
+    const counts = {};
+    rows.forEach(row => {
+        const key = keyFn(row);
+        counts[key] = (counts[key] || 0) + 1;
+    });
+    return counts;
 }
 
 module.exports = async (req, res) => {
@@ -40,7 +71,7 @@ module.exports = async (req, res) => {
     }
 
     try {
-        let tree, unknownAgingValues, rowCount;
+        let tree, unknownAgingValues, rowCount, statusCounts, attemptCounts;
 
         if (source === 'region') {
             // Combined region-level overview: Region -> {Seller VIP, Seller Thường}.
@@ -60,6 +91,13 @@ module.exports = async (req, res) => {
             tree = result.tree;
             unknownAgingValues = result.unknownAgingValues;
             rowCount = combined.length;
+
+            statusCounts = countBy(combined, row => (row[COLUMN_MAP.status] || '').trim() || 'unknown');
+
+            const numberPickKey = findNumberPickKey(combined[0]);
+            attemptCounts = numberPickKey
+                ? countBy(combined, row => bucketAttempts(row[numberPickKey]))
+                : null;
         } else {
             const rows = await loadRows(SHEETS[source]);
             const result = buildTree(rows, LEVELS[source], COLUMN_MAP.aging);
@@ -74,7 +112,7 @@ module.exports = async (req, res) => {
 
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.setHeader('Cache-Control', 'no-store, max-age=0');
-        return res.status(200).json({ tree, rowCount, unknownAgingValues });
+        return res.status(200).json({ tree, rowCount, unknownAgingValues, statusCounts, attemptCounts });
     } catch (err) {
         console.error(`Error fetching source=${source}:`, err.message);
         return res.status(500).json({ error: 'Failed to fetch data: ' + err.message });
