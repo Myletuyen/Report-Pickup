@@ -33,7 +33,7 @@ async function loadRows(sheetName) {
 // The "number of pickup attempts" column name isn't confirmed exactly, so match
 // it case/whitespace-insensitively against a few likely spellings instead of a
 // single hardcoded header string.
-const NUMBER_PICK_CANDIDATES = ['numberpick', 'numberofpick', 'numofpick', 'pickattempt', 'pickattempts', 'solanlay'];
+const NUMBER_PICK_CANDIDATES = ['numpick', 'numberpick', 'numberofpick', 'numofpick', 'pickattempt', 'pickattempts', 'solanlay'];
 
 function findNumberPickKey(sampleRow) {
     if (!sampleRow) return null;
