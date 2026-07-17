@@ -93,6 +93,7 @@ body::before {
 }
 .section-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
 .section-icon { font-size: 20px; }
+.section-note { font-size: 12px; font-weight: 400; color: var(--text-muted); }
 
 .hint-text { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; font-style: italic; }
 
