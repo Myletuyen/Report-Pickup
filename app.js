@@ -135,6 +135,36 @@
         renderBreakdown('kpi-thuong-breakdown', thuong.a1, thuong.a2, thuong.a3, thuong.total);
     }
 
+    function renderSinglePercent(elId, count, total) {
+        const el = document.getElementById(elId);
+        if (!el || !total) { if (el) el.innerHTML = ''; return; }
+        const pct = Math.round((count / total) * 100);
+        el.innerHTML = '<span class="bd-item">' + pct + '% of total backlog</span>';
+    }
+
+    function renderAttemptsBreakdown(elId, attemptCounts, total) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (!attemptCounts || !total) { el.innerHTML = 'Không có dữ liệu cột số lần lấy'; return; }
+        const pct = n => Math.round(((attemptCounts[n] || 0) / total) * 100);
+        el.innerHTML =
+            '<span class="bd-item bd-a1">0 lần: <b>' + formatNumber(attemptCounts['0'] || 0) + '</b> (' + pct('0') + '%)</span>' +
+            '<span class="bd-item">1 lần: <b>' + formatNumber(attemptCounts['1'] || 0) + '</b> (' + pct('1') + '%)</span>' +
+            '<span class="bd-item bd-a2">2 lần: <b>' + formatNumber(attemptCounts['2'] || 0) + '</b> (' + pct('2') + '%)</span>' +
+            '<span class="bd-item bd-a3">≥3 lần: <b>' + formatNumber(attemptCounts['>=3'] || 0) + '</b> (' + pct('>=3') + '%)</span>';
+    }
+
+    function updateStatusAndAttempts(statusCounts, attemptCounts, total) {
+        const readyCount = (statusCounts && statusCounts['ready_to_pick']) || 0;
+        const pickingCount = (statusCounts && statusCounts['picking']) || 0;
+
+        document.getElementById('kpi-status-ready').textContent = formatNumber(readyCount);
+        document.getElementById('kpi-status-picking').textContent = formatNumber(pickingCount);
+        renderSinglePercent('kpi-status-ready-breakdown', readyCount, total);
+        renderSinglePercent('kpi-status-picking-breakdown', pickingCount, total);
+        renderAttemptsBreakdown('kpi-attempts-breakdown', attemptCounts, total);
+    }
+
     // ========== DATA LOADING ==========
     function fetchTree(url) {
         return fetch(url, { cache: 'no-store' }).then(res => {
@@ -170,6 +200,7 @@
             setStatus('Đang tổng hợp theo Vùng...');
             const regionResult = await fetchTree(DATA_SOURCES.region);
             regionTree = regionResult.tree;
+            updateStatusAndAttempts(regionResult.statusCounts, regionResult.attemptCounts, regionResult.rowCount);
 
             renderTree(document.getElementById('vip-tbody'), vipTree, 'vip');
             renderTree(document.getElementById('thuong-tbody'), thuongTree, 'thuong');
