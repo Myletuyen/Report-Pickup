@@ -3,13 +3,12 @@ const { fetchPublicCsv } = require('./_lib/sheetsClient');
 const { buildTree } = require('./_lib/aggregate');
 
 // "Backlog Firstmile" spreadsheet shared by the team as "Anyone with the link
-// can view" — no service account / credentials needed to read it.
+// can view" — no service account / credentials needed to read it. All backlog
+// rows live in one "DATA RAW" tab; VIP vs Thường is a Category column value on
+// each row, not a separate tab (the "all seller VIP" / "all seller Thường"
+// tabs turned out to both mirror the full raw data, not filtered subsets).
 const SPREADSHEET_ID = process.env.PICKUP_SPREADSHEET_ID || '14h6x-yB0uScxO8DDTliF6B79Xxt-gSXg1Kk3BXrfIWI';
-
-const SHEETS = {
-    vip: process.env.PICKUP_SHEET_VIP || 'all seller VIP',
-    thuong: process.env.PICKUP_SHEET_THUONG || 'all seller Thường',
-};
+const RAW_SHEET = process.env.PICKUP_SHEET_RAW || 'DATA RAW';
 
 const COLUMN_MAP = {
     seller: 'Clientcontactname',
@@ -18,17 +17,8 @@ const COLUMN_MAP = {
     province: 'FromProvince',
     aging: 'Aging',
     status: 'CurrentStatus',
+    category: 'Category',
 };
-
-const LEVELS = {
-    vip: [row => row[COLUMN_MAP.seller], row => row[COLUMN_MAP.pickWH]],
-    thuong: [row => row[COLUMN_MAP.region], row => row[COLUMN_MAP.province], row => row[COLUMN_MAP.pickWH]],
-};
-
-async function loadRows(sheetName) {
-    const csvText = await fetchPublicCsv(SPREADSHEET_ID, sheetName);
-    return Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
-}
 
 // The "number of pickup attempts" column name isn't confirmed exactly, so match
 // it case/whitespace-insensitively against a few likely spellings instead of a
@@ -60,61 +50,69 @@ function countBy(rows, keyFn) {
     return counts;
 }
 
+function isVip(row) {
+    return (row[COLUMN_MAP.category] || '').trim().toLowerCase() === 'vip';
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    const source = req.query.source;
-    if (source !== 'vip' && source !== 'thuong' && source !== 'region') {
-        return res.status(400).json({ error: 'Bad Request: source must be "vip", "thuong" or "region"' });
-    }
-
     try {
-        let tree, unknownAgingValues, rowCount, statusCounts, attemptCounts;
+        const csvText = await fetchPublicCsv(SPREADSHEET_ID, RAW_SHEET);
+        const rows = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
 
-        if (source === 'region') {
-            // Combined region-level overview: Region -> {Seller VIP, Seller Thường}.
-            const [vipRows, thuongRows] = await Promise.all([
-                loadRows(SHEETS.vip),
-                loadRows(SHEETS.thuong),
-            ]);
-            vipRows.forEach(row => { row.__sellerType = 'Seller VIP'; });
-            thuongRows.forEach(row => { row.__sellerType = 'Seller Thường'; });
-            const combined = vipRows.concat(thuongRows);
-            const result = buildTree(combined, [
-                row => row[COLUMN_MAP.region],
-                row => row.__sellerType,
-                // Under "Seller VIP": list of seller names. Under "Seller Thường": list of pickup offices (Bưu cục).
-                row => row.__sellerType === 'Seller VIP' ? row[COLUMN_MAP.seller] : row[COLUMN_MAP.pickWH],
-            ], COLUMN_MAP.aging);
-            tree = result.tree;
-            unknownAgingValues = result.unknownAgingValues;
-            rowCount = combined.length;
+        const vipRows = rows.filter(isVip);
+        const thuongRows = rows.filter(row => !isVip(row));
 
-            statusCounts = countBy(combined, row => (row[COLUMN_MAP.status] || '').trim() || 'unknown');
+        const vipResult = buildTree(vipRows, [
+            row => row[COLUMN_MAP.seller],
+            row => row[COLUMN_MAP.pickWH],
+        ], COLUMN_MAP.aging);
 
-            const numberPickKey = findNumberPickKey(combined[0]);
-            attemptCounts = numberPickKey
-                ? countBy(combined, row => bucketAttempts(row[numberPickKey]))
-                : null;
-        } else {
-            const rows = await loadRows(SHEETS[source]);
-            const result = buildTree(rows, LEVELS[source], COLUMN_MAP.aging);
-            tree = result.tree;
-            unknownAgingValues = result.unknownAgingValues;
-            rowCount = rows.length;
-        }
+        const thuongResult = buildTree(thuongRows, [
+            row => row[COLUMN_MAP.region],
+            row => row[COLUMN_MAP.province],
+            row => row[COLUMN_MAP.pickWH],
+        ], COLUMN_MAP.aging);
+
+        rows.forEach(row => { row.__sellerType = isVip(row) ? 'Seller VIP' : 'Seller Thường'; });
+        const regionResult = buildTree(rows, [
+            row => row[COLUMN_MAP.region],
+            row => row.__sellerType,
+            // Under "Seller VIP": list of seller names. Under "Seller Thường": list of pickup offices (Bưu cục).
+            row => row.__sellerType === 'Seller VIP' ? row[COLUMN_MAP.seller] : row[COLUMN_MAP.pickWH],
+        ], COLUMN_MAP.aging);
+
+        const statusCounts = countBy(rows, row => (row[COLUMN_MAP.status] || '').trim() || 'unknown');
+        const numberPickKey = findNumberPickKey(rows[0]);
+        const attemptCounts = numberPickKey
+            ? countBy(rows, row => bucketAttempts(row[numberPickKey]))
+            : null;
+
+        const unknownAgingValues = Array.from(new Set([
+            ...vipResult.unknownAgingValues,
+            ...thuongResult.unknownAgingValues,
+        ]));
 
         if (unknownAgingValues.length > 0) {
-            console.warn(`Unrecognized Aging values for source=${source}:`, unknownAgingValues);
+            console.warn('Unrecognized Aging values:', unknownAgingValues);
         }
 
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.setHeader('Cache-Control', 'no-store, max-age=0');
-        return res.status(200).json({ tree, rowCount, unknownAgingValues, statusCounts, attemptCounts });
+        return res.status(200).json({
+            vipTree: vipResult.tree,
+            thuongTree: thuongResult.tree,
+            regionTree: regionResult.tree,
+            rowCount: rows.length,
+            unknownAgingValues,
+            statusCounts,
+            attemptCounts,
+        });
     } catch (err) {
-        console.error(`Error fetching source=${source}:`, err.message);
+        console.error('Error fetching backlog data:', err.message);
         return res.status(500).json({ error: 'Failed to fetch data: ' + err.message });
     }
 };
