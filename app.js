@@ -248,9 +248,80 @@
         loadAll();
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
+    // ========== GOOGLE SIGN-IN (redirect flow — no popup/FedCM, works even with
+    // third-party cookies blocked or ad/privacy extensions installed) ==========
+    const GOOGLE_CLIENT_ID = '646710154972-b7b4iq81ej76i86cm2mgs4fnnquhrc0a.apps.googleusercontent.com';
+    const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+    function decodeJwtResponse(token) {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c =>
+            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join(''));
+        return JSON.parse(jsonPayload);
+    }
+
+    function startGoogleLogin() {
+        const nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
+        const params = new URLSearchParams({
+            client_id: GOOGLE_CLIENT_ID,
+            redirect_uri: REDIRECT_URI,
+            response_type: 'id_token',
+            scope: 'openid email profile',
+            nonce: nonce,
+            prompt: 'select_account',
+        });
+        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+    }
+
+    function showLoginError(msg) {
+        const errorEl = document.getElementById('login-error');
+        if (errorEl) errorEl.innerHTML = msg;
+    }
+
+    function showDashboard() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-dashboard').style.display = 'block';
+        document.getElementById('loading-overlay').classList.remove('hidden');
         init();
+    }
+
+    function handleAuthRedirect() {
+        if (!window.location.hash) return false;
+        const hashParams = new URLSearchParams(window.location.hash.slice(1));
+        const idToken = hashParams.get('id_token');
+        const error = hashParams.get('error');
+        if (!idToken && !error) return false;
+
+        // Clean the token/error out of the URL so refresh/back doesn't resubmit it.
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+
+        if (error) {
+            showLoginError('Đăng nhập thất bại: ' + escapeHTML(error));
+            return true;
+        }
+
+        const payload = decodeJwtResponse(idToken);
+        const email = payload.email;
+        if (email && email.endsWith('@ghn.vn')) {
+            showDashboard();
+        } else {
+            showLoginError('Lỗi: Email <strong>' + escapeHTML(email || '') + '</strong> không được phép truy cập.<br>Vui lòng sử dụng tài khoản @ghn.vn!');
+        }
+        return true;
+    }
+
+    function initLogin() {
+        const btn = document.getElementById('google-login-btn');
+        if (btn) btn.addEventListener('click', startGoogleLogin);
+        handleAuthRedirect();
+        document.getElementById('loading-overlay').classList.add('hidden');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLogin);
+    } else {
+        initLogin();
     }
 })();
