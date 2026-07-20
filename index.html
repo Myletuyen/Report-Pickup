@@ -8,8 +8,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-box">
+            <div class="login-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h2 class="login-title">Hệ Thống Nội Bộ GHN</h2>
+            <p class="login-desc">Vui lòng đăng nhập bằng tài khoản email <strong>@ghn.vn</strong> để xem dữ liệu nhạy cảm.</p>
+
+            <div id="g_id_onload"
+                 data-client_id="341334603695-p3un191gt2c7ekr93prml9vpd611e0qn.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left"
+                 style="margin-top: 24px; display: flex; justify-content: center;">
+            </div>
+            <p id="login-error" class="login-error"></p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Container (hidden until logged in) -->
+    <div id="main-dashboard" style="display: none;">
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay">
         <div class="loading-content">
@@ -106,31 +136,6 @@
             </div>
         </section>
 
-        <!-- Region overview: Region -> Seller VIP / Seller Thường -->
-        <section class="section fade-in">
-            <div class="section-header">
-                <h2 class="section-title"><span class="section-icon">🗺️</span> Backlog by Region</h2>
-                <input type="text" class="search-box" id="region-search" placeholder="Tìm vùng...">
-            </div>
-            <p class="hint-text">Bấm vào một Vùng để tách theo Seller VIP / Seller Thường.</p>
-            <div class="table-container">
-                <div class="table-responsive">
-                    <table class="data-table drill-table" id="region-table">
-                        <thead>
-                            <tr>
-                                <th class="col-name">Vùng / Loại Seller</th>
-                                <th>Volume tồn total</th>
-                                <th>Aging &lt;= 1 ngày</th>
-                                <th>Aging 2 ngày</th>
-                                <th>Aging &gt;= 3 ngày</th>
-                            </tr>
-                        </thead>
-                        <tbody id="region-tbody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
         <!-- Seller detail: tabbed VIP / Thường -->
         <section class="section fade-in">
             <div class="section-header">
@@ -187,12 +192,38 @@
                 </div>
             </div>
         </section>
+
+        <!-- Region overview: Region -> Seller VIP / Seller Thường -->
+        <section class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title"><span class="section-icon">🗺️</span> Backlog by Region</h2>
+                <input type="text" class="search-box" id="region-search" placeholder="Tìm vùng...">
+            </div>
+            <p class="hint-text">Bấm vào một Vùng để tách theo Seller VIP / Seller Thường.</p>
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="data-table drill-table" id="region-table">
+                        <thead>
+                            <tr>
+                                <th class="col-name">Vùng / Loại Seller</th>
+                                <th>Volume tồn total</th>
+                                <th>Aging &lt;= 1 ngày</th>
+                                <th>Aging 2 ngày</th>
+                                <th>Aging &gt;= 3 ngày</th>
+                            </tr>
+                        </thead>
+                        <tbody id="region-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="dashboard-footer">
         <p>© 2026 Dashboard Backlog Lấy Hàng — Firstmile</p>
     </footer>
+    </div> <!-- End main-dashboard -->
 
-    <script src="app.js?v=2.0"></script>
+    <script src="app.js?v=3.0"></script>
 </body>
 </html>
