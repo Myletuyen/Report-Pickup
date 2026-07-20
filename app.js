@@ -3,12 +3,9 @@
 
     // Aggregation (seller/team, region/province/office + aging buckets) now
     // happens server-side in api/data.js — the browser only ever receives the
-    // small summarized tree, not the raw (six-figure-row) backlog CSV.
-    const DATA_SOURCES = {
-        vip: '/api/data?source=vip',
-        thuong: '/api/data?source=thuong',
-        region: '/api/data?source=region',
-    };
+    // small summarized trees, not the raw (six-figure-row) backlog CSV. One
+    // fetch returns all three trees plus the status/attempts breakdowns.
+    const DATA_URL = '/api/data';
 
     // ========== STATE ==========
     let vipTree = null;
@@ -183,24 +180,15 @@
     async function loadAll() {
         document.getElementById('loading-overlay').classList.remove('hidden');
         try {
-            setStatus('Đang tải danh sách Seller VIP...');
-            const vipResult = await fetchTree(DATA_SOURCES.vip);
-            vipTree = vipResult.tree;
-            if (vipResult.unknownAgingValues && vipResult.unknownAgingValues.length) {
-                console.warn('VIP: giá trị Aging chưa nhận diện được (vẫn tính vào total):', vipResult.unknownAgingValues);
+            setStatus('Đang tải dữ liệu backlog...');
+            const result = await fetchTree(DATA_URL);
+            vipTree = result.vipTree;
+            thuongTree = result.thuongTree;
+            regionTree = result.regionTree;
+            updateStatusAndAttempts(result.statusCounts, result.attemptCounts, result.rowCount);
+            if (result.unknownAgingValues && result.unknownAgingValues.length) {
+                console.warn('Giá trị Aging chưa nhận diện được (vẫn tính vào total):', result.unknownAgingValues);
             }
-
-            setStatus('Đang tải danh sách Seller Thường...');
-            const thuongResult = await fetchTree(DATA_SOURCES.thuong);
-            thuongTree = thuongResult.tree;
-            if (thuongResult.unknownAgingValues && thuongResult.unknownAgingValues.length) {
-                console.warn('Thường: giá trị Aging chưa nhận diện được (vẫn tính vào total):', thuongResult.unknownAgingValues);
-            }
-
-            setStatus('Đang tổng hợp theo Vùng...');
-            const regionResult = await fetchTree(DATA_SOURCES.region);
-            regionTree = regionResult.tree;
-            updateStatusAndAttempts(regionResult.statusCounts, regionResult.attemptCounts, regionResult.rowCount);
 
             renderTree(document.getElementById('vip-tbody'), vipTree, 'vip');
             renderTree(document.getElementById('thuong-tbody'), thuongTree, 'thuong');
