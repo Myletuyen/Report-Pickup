@@ -186,8 +186,14 @@
             thuongTree = result.thuongTree;
             regionTree = result.regionTree;
             updateStatusAndAttempts(result.statusCounts, result.attemptCounts, result.rowCount);
+            const warningEl = document.getElementById('data-warning');
             if (result.unknownAgingValues && result.unknownAgingValues.length) {
-                console.warn('Giá trị Aging chưa nhận diện được (vẫn tính vào total):', result.unknownAgingValues);
+                console.warn('Giá trị Aging chưa nhận diện được (vẫn tính vào total, không tính vào aging buckets):', result.unknownAgingValues);
+                warningEl.innerHTML = '⚠️ Có <b>' + result.unknownAgingValues.length + '</b> giá trị cột Aging không nhận diện được (vẫn tính vào Total nhưng không vào ≤1/2/≥3 ngày): ' +
+                    result.unknownAgingValues.map(v => '<b>"' + escapeHTML(v) + '"</b>').join(', ');
+                warningEl.style.display = 'block';
+            } else if (warningEl) {
+                warningEl.style.display = 'none';
             }
 
             renderTree(document.getElementById('vip-tbody'), vipTree, 'vip');
