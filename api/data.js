@@ -16,9 +16,30 @@ const COLUMN_MAP = {
     region: 'FromRegionShortName',
     province: 'FromProvince',
     aging: 'Aging',
+    loadDate: 'LoadDate',
     status: 'CurrentStatus',
     category: 'Category',
 };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// The sheet's own "Aging" column comes back BLANK (via CSV export) for rows
+// whose display value is ">=3" — confirmed by comparing the live sheet
+// (which shows ">=3") against the exported CSV (same OrderCode, empty Aging
+// cell) for the same rows, all with older LoadDate values. LoadDate itself
+// exports fine, so recompute the bucket from LoadDate whenever Aging is blank.
+function computeAgingFromLoadDate(loadDateStr) {
+    const m = String(loadDateStr || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return null;
+    const loadDateUTC = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+    const nowVN = new Date(Date.now() + 7 * 60 * 60 * 1000); // approximate Asia/Ho_Chi_Minh (UTC+7)
+    const todayVN = Date.UTC(nowVN.getUTCFullYear(), nowVN.getUTCMonth(), nowVN.getUTCDate());
+    const days = Math.round((todayVN - loadDateUTC) / DAY_MS);
+    if (days < 0) return null;
+    if (days <= 1) return '1';
+    if (days === 2) return '2';
+    return '>=3';
+}
 
 // The "number of pickup attempts" column name isn't confirmed exactly, so match
 // it case/whitespace-insensitively against a few likely spellings instead of a
@@ -80,6 +101,18 @@ module.exports = async (req, res) => {
         const csvText = await fetchPublicCsv(SPREADSHEET_ID, RAW_SHEET);
         const rows = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
 
+        let agingBackfilledCount = 0;
+        rows.forEach(row => {
+            const rawAging = (row[COLUMN_MAP.aging] || '').toString().trim();
+            if (!rawAging) {
+                const fallback = computeAgingFromLoadDate(row[COLUMN_MAP.loadDate]);
+                if (fallback) {
+                    row[COLUMN_MAP.aging] = fallback;
+                    agingBackfilledCount++;
+                }
+            }
+        });
+
         const vipRows = rows.filter(isVip);
         const thuongRows = rows.filter(row => !isVip(row));
 
@@ -128,6 +161,7 @@ module.exports = async (req, res) => {
             statusCounts,
             attemptCounts,
             agingValueCounts: agingValueCounts(rows, COLUMN_MAP.aging),
+            agingBackfilledCount,
         });
     } catch (err) {
         console.error('Error fetching backlog data:', err.message);
