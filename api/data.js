@@ -54,6 +54,23 @@ function isVip(row) {
     return (row[COLUMN_MAP.category] || '').trim().toLowerCase() === 'vip';
 }
 
+// Frequency of raw (trimmed) Aging cell values across the whole dataset —
+// exposed to the client for debugging what the sheet is actually exporting,
+// since a cell's on-screen display (e.g. a custom number format) can differ
+// from what comes back over the CSV export.
+function agingValueCounts(rows, agingField) {
+    const counts = {};
+    rows.forEach(row => {
+        const raw = row[agingField];
+        const key = raw == null || String(raw).trim() === '' ? '(trống)' : String(raw).trim();
+        counts[key] = (counts[key] || 0) + 1;
+    });
+    return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([value, count]) => ({ value, count }));
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization');
@@ -110,6 +127,7 @@ module.exports = async (req, res) => {
             unknownAgingValues,
             statusCounts,
             attemptCounts,
+            agingValueCounts: agingValueCounts(rows, COLUMN_MAP.aging),
         });
     } catch (err) {
         console.error('Error fetching backlog data:', err.message);
