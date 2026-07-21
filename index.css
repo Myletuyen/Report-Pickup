@@ -134,6 +134,15 @@ body::before {
 .tab-btn:hover { color: var(--text-primary); }
 .tab-btn.active { background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.4); color: var(--blue-light); }
 
+.raw-link-row { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.raw-link-btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+    background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary);
+    border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; text-decoration: none;
+    transition: all .15s ease;
+}
+.raw-link-btn:hover { color: var(--blue-light); border-color: rgba(59,130,246,.4); }
+
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .kpi-grid-fixed { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 900px) {
