@@ -201,6 +201,17 @@
             renderTree(document.getElementById('region-tbody'), regionTree, 'region');
             updateKPIs();
 
+            const a3Total = (vipTree.a3 || 0) + (thuongTree.a3 || 0);
+            if (a3Total === 0 && result.agingValueCounts && result.agingValueCounts.length) {
+                console.info('Aging raw value counts:', result.agingValueCounts);
+                const list = result.agingValueCounts
+                    .map(({ value, count }) => '<b>"' + escapeHTML(value) + '"</b>: ' + formatNumber(count))
+                    .join(', ');
+                warningEl.innerHTML = (warningEl.innerHTML ? warningEl.innerHTML + '<br>' : '') +
+                    '🔍 Debug — Aging ≥3 ngày đang ra 0. Các giá trị thô thực tế trong cột Aging (top 20, tổng ' + formatNumber(result.rowCount) + ' dòng): ' + list;
+                warningEl.style.display = 'block';
+            }
+
             document.getElementById('last-updated').textContent = new Date().toLocaleString('vi-VN');
         } catch (err) {
             console.error('Load failed:', err);
